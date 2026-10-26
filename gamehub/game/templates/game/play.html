@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Play{% endblock %}
+{% block content %}
+{% if game %}
+<section class="card">
+  <h1>Guess the number</h1>
+  <p class="muted">Between {{ min_number }} and {{ max_number }}.
+     <strong>{{ game.attempts_left }}</strong> of {{ max_attempts }} guesses left.</p>
+  <form method="post" action="{% url 'guess' %}" class="guessform">
+    {% csrf_token %}
+    <label for="id_guess">{{ form.guess.label }}</label>
+    {{ form.guess }}
+    <button class="btn" type="submit">Guess</button>
+  </form>
+  {% if game.guesses.all %}
+  <h2>Your guesses</h2>
+  <ul class="chips">
+    {% for g in game.guesses.all %}
+      <li class="chip {{ g.result }}">{{ g.value }}
+        <span>{% if g.result == "higher" %}&uarr; go higher{% elif g.result == "lower" %}&darr; go lower{% else %}&#10003;{% endif %}</span></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</section>
+{% else %}
+<section class="card">
+  <h1>Ready to play?</h1>
+  <p>I'll pick a number from {{ min_number }} to {{ max_number }}. You have {{ max_attempts }} guesses.</p>
+  <form method="post" action="{% url 'new_game' %}">
+    {% csrf_token %}
+    <button class="btn" type="submit">{% if just_finished or recent %}Play again{% else %}Start game{% endif %}</button>
+  </form>
+</section>
+{% endif %}
+
+{% if recent %}
+<section class="card">
+  <h2>Your recent games</h2>
+  <table>
+    <thead><tr><th>When</th><th>Result</th><th>Guesses</th><th>Points</th></tr></thead>
+    <tbody>
+    {% for g in recent %}
+      <tr><td>{{ g.finished_at|date:"j M, H:i" }}</td>
+          <td>{{ g.get_status_display }}</td><td>{{ g.attempts_used }}</td><td>{{ g.points }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+{% endblock %}

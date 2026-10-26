@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Leaderboard</h1>
+  {% if rows %}
+  <table>
+    <thead><tr><th>#</th><th>Player</th><th>Points</th><th>Wins</th><th>Played</th><th>Best</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr {% if r.user__username == user.username %}class="me"{% endif %}>
+        <td>{{ forloop.counter }}</td><td>{{ r.user__username }}</td><td>{{ r.total_points }}</td>
+        <td>{{ r.wins }}</td><td>{{ r.played }}</td>
+        <td>{% if r.best %}{{ r.best }} guess{{ r.best|pluralize:"es" }}{% else %}&ndash;{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No finished games yet. <a href="{% url 'play' %}">Be the first!</a></p>
+  {% endif %}
+</section>
+{% endblock %}
